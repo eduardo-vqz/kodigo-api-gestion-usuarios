@@ -1,59 +1,268 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API de Gestión de Usuarios – Laravel & Sanctum
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este proyecto implementa una **API RESTful** para la gestión de usuarios, desarrollada con **Laravel 11** y protegida mediante **Laravel Sanctum** para el manejo de tokens.  
+Incluye:
 
-## About Laravel
+- Registro de usuarios  
+- Inicio de sesión con generación de token  
+- CRUD completo de usuarios  
+- Cierre de sesión (invalidación de token)  
+- Estadísticas por día, semana y mes  
+- Seeders, factories y migraciones completas  
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos Previos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2 o superior  
+- Composer  
+- MySQL o MariaDB  
+- Postman / Insomnia para pruebas  
+- Laravel CLI (opcional)  
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# Instalación y Configuración
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 1Clonar el repositorio
 
-## Laravel Sponsors
+```bash
+git clone <URL-del-repositorio>
+cd api-gestion-usuarios
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Instalar dependencias
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+composer install
+```
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Crear archivo `.env`
 
-## Code of Conduct
+```bash
+cp .env.example .env
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Configurar la base de datos:
 
-## Security Vulnerabilities
+```env
+DB_DATABASE=api_usuarios
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Crear la base de datos:
 
-## License
+```sql
+CREATE DATABASE api_usuarios CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Registrar rutas API (Laravel 11)
+
+Abrir el archivo:
+
+```text
+bootstrap/app.php
+```
+
+Y agregar:
+
+```php
+api: __DIR__.'/../routes/api.php',
+```
+
+Debe quedar así:
+
+```php
+->withRouting(
+    web: __DIR__.'/../routes/web.php',
+    api: __DIR__.'/../routes/api.php',
+    commands: __DIR__.'/../routes/console.php',
+    health: '/up',
+)
+```
+
+---
+
+## Generar clave de la aplicación
+
+```bash
+php artisan key:generate
+```
+
+---
+
+## Ejecutar migraciones y seeders
+
+```bash
+php artisan migrate --seed
+```
+
+ó:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Esto crea:
+
+- Usuario administrador:  
+  - **email:** `admin@example.com`  
+  - **password:** `admin123`  
+- 20 usuarios de prueba.
+
+---
+
+## Iniciar el servidor
+
+```bash
+php artisan serve
+```
+
+La API estará disponible en:
+
+```
+http://127.0.0.1:8000/api/
+```
+
+---
+
+# Autenticación con Tokens (Sanctum)
+
+Para acceder a rutas protegidas:
+
+1. Hacer login  
+2. Copiar el token  
+3. En Postman/Insomnia → Authorization → Bearer Token  
+4. Pegar token  
+
+---
+
+# Endpoints de la API
+
+---
+
+## Rutas Públicas
+
+### **1. Registro**
+`POST /api/register`
+
+Body JSON:
+
+```json
+{
+  "name": "Test User",
+  "username": "test01",
+  "email": "test@example.com",
+  "password": "123456",
+  "password_confirmation": "123456"
+}
+```
+
+---
+
+### **2. Login**
+`POST /api/login`
+
+Body:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+```
+
+Respuesta:
+
+```json
+{
+  "message": "Login exitoso",
+  "token": "1|xxxxx",
+  "token_type": "Bearer"
+}
+```
+
+---
+
+# Rutas Protegidas (requieren token)
+
+### **Listar usuarios**
+`GET /api/users`
+
+### **Crear usuario**
+`POST /api/users`
+
+Body:
+
+```json
+{
+  "name": "Nuevo Usuario",
+  "username": "nuevo",
+  "email": "nuevo@example.com",
+  "password": "123456",
+  "role": "user"
+}
+```
+
+### **Mostrar usuario**
+`GET /api/users/{id}`
+
+### **Actualizar usuario**
+`PUT /api/users/{id}`
+
+### **Eliminar usuario**
+`DELETE /api/users/{id}`
+
+---
+
+## Estadísticas
+
+### Usuarios por día  
+`GET /api/stats/users/daily`
+
+### Usuarios por semana  
+`GET /api/stats/users/weekly`
+
+### Usuarios por mes  
+`GET /api/stats/users/monthly`
+
+---
+
+## Cerrar sesión
+
+`POST /api/logout`
+
+Invalidará el token actual.
+
+---
+
+# 🧪 Pruebas con Postman / Insomnia
+
+1. Registrar usuario  
+2. Hacer login  
+3. Copiar token  
+4. Pegar token en Authorization  
+5. Probar CRUD  
+6. Probar estadísticas  
+7. Logout  
+
+---
+
+# 🛠 Tecnologías Utilizadas
+
+- Laravel 11  
+- Laravel Sanctum  
+- PHP 8.2+  
+- MySQL  
+- Faker  
+- Postman / Insomnia  
+
+---
+
